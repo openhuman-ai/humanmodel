@@ -5,6 +5,7 @@
   "source": "src/index.html",
   "scripts": {
     "start": "parcel",
+    "dev": "parcel",
     "build": "parcel build src/index.html",
     "clean": "rm -rf dist .parcel-cache",
     "test": "echo \"Error: no test specified\" && exit 1"
