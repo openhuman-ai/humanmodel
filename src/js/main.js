@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 
 class App {
+    container;
+    renderer;
+    camera;
+    scene;
+    cube;
+
     constructor() {
-        this.container = document.querySelector('#scene-container');
-        
+        const container = document.querySelector('#scene-container');
+        if (!container) throw new Error('Could not find #scene-container');
+        this.container = container;
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color('skyblue');
         
