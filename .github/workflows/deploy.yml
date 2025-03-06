@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build with Parcel
-        run: npm run build src/index.html --public-url /humanmodel/
+        run: npx parcel build src/index.html --public-url /humanmodel/
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
