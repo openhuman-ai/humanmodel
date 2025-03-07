@@ -23,9 +23,11 @@
   },
   "homepage": "https://github.com/openhuman-ai/humanmodel#readme",
   "devDependencies": {
+    "@parcel/transformer-raw": "^2.13.3",
     "parcel": "^2.13.3"
   },
   "dependencies": {
+    "dat.gui": "^0.7.9",
     "three": "^0.174.0"
   }
 }

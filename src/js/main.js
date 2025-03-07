@@ -1,11 +1,25 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+// Create loading manager
+const loadingManager = new THREE.LoadingManager();
+loadingManager.onProgress = (url, loaded, total) => {
+    console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`);
+};
+
+const MODEL_PATH = new URL('../public/Thanh.glb', import.meta.url).href;
 
 class App {
     container;
     renderer;
     camera;
     scene;
-    cube;
+    mixer;
+    controls;
+    clock;
+    model;
 
     constructor() {
         const container = document.querySelector('#scene-container');
@@ -13,11 +27,15 @@ class App {
         this.container = container;
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color('skyblue');
+        this.clock = new THREE.Clock();
         
         this.createCamera();
         this.createRenderer();
+        this.createControls();
         this.createLight();
-        this.createMeshes();
+        this.loadModel();
+        
+        window.addEventListener('resize', this.onWindowResize.bind(this), false);
         
         this.renderer.setAnimationLoop(() => {
             this.render();
@@ -29,16 +47,28 @@ class App {
             35, // FOV
             window.innerWidth / window.innerHeight, // aspect
             0.1, // near
-            100, // far
+            1000, // far
         );
-        this.camera.position.set(0, 0, 10);
+        this.camera.position.set(0, 1, 5);
     }
     
     createRenderer() {
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ 
+            antialias: true,
+            alpha: true 
+        });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        this.renderer.physicallyCorrectLights = true;
         this.container.appendChild(this.renderer.domElement);
+    }
+
+    createControls() {
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+        this.controls.screenSpacePanning = true;
     }
     
     createLight() {
@@ -50,20 +80,49 @@ class App {
         this.scene.add(ambientLight);
     }
     
-    createMeshes() {
-        // Add a simple cube as a placeholder
-        const geometry = new THREE.BoxGeometry(2, 2, 2);
-        const material = new THREE.MeshStandardMaterial({ color: 'purple' });
-        this.cube = new THREE.Mesh(geometry, material);
-        this.scene.add(this.cube);
+    loadModel() {
+        const loader = new GLTFLoader(loadingManager);
+        const dracoLoader = new DRACOLoader(loadingManager);
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load(MODEL_PATH, (gltf) => {
+            this.model = gltf.scene;
+            
+            // Center the model
+            const box = new THREE.Box3().setFromObject(this.model);
+            const center = box.getCenter(new THREE.Vector3());
+            this.model.position.sub(center); // Simpler centering
+            
+            // Handle animations
+            if (gltf.animations?.length) {
+                this.mixer = new THREE.AnimationMixer(this.model);
+                gltf.animations.forEach(clip => {
+                    this.mixer.clipAction(clip).play();
+                });
+            }
+            
+            this.scene.add(this.model);
+        });
+    }
+
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
     render() {
-        // Add simple rotation animation
-        if (this.cube) {
-            this.cube.rotation.x += 0.01;
-            this.cube.rotation.y += 0.01;
+        const delta = this.clock.getDelta();
+        
+        if (this.mixer) {
+            this.mixer.update(delta);
         }
+        
+        if (this.controls) {
+            this.controls.update();
+        }
+        
         this.renderer.render(this.scene, this.camera);
     }
 }
