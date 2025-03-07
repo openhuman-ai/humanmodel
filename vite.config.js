@@ -20,6 +20,7 @@ export default defineConfig({
         human: resolve(__dirname, 'human/index.html'),
         normalmap: resolve(__dirname, 'normalmap/index.html'),
         readyplayer: resolve(__dirname, 'readyplayer/index.html'),
+        facecap: resolve(__dirname, 'facecap/index.html'),
       },
     },
     assetsDir: 'assets',
