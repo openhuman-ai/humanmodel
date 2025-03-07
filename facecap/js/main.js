@@ -2,6 +2,13 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Stats from "three/addons/libs/stats.module.js"
+
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js"
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js"
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js"
+
+import { GUI } from "three/addons/libs/lil-gui.module.min.js"
 
 // Create loading manager
 const loadingManager = new THREE.LoadingManager();
@@ -9,7 +16,7 @@ loadingManager.onProgress = (url, loaded, total) => {
     console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`);
 };
 
-const MODEL_PATH = new URL('/models/Thanh.glb', import.meta.url).href;
+const MODEL_PATH = new URL('/models/facecap.glb', import.meta.url).href;
 
 class App {
     container;
