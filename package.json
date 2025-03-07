@@ -1,33 +1,16 @@
 {
-  "name": "humanmodel",
+  "name": "3d-model-viewer",
   "version": "1.0.0",
-  "description": "humanmodel",
-  "source": "src/index.html",
+  "description": "3D Model Viewer",
   "scripts": {
-    "start": "parcel",
-    "dev": "parcel",
-    "build": "parcel build src/index.html",
-    "clean": "rm -rf dist .parcel-cache",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/openhuman-ai/humanmodel.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "bugs": {
-    "url": "https://github.com/openhuman-ai/humanmodel/issues"
-  },
-  "homepage": "https://github.com/openhuman-ai/humanmodel#readme",
-  "devDependencies": {
-    "@parcel/transformer-raw": "^2.13.3",
-    "parcel": "^2.13.3"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "dat.gui": "^0.7.9",
     "three": "^0.174.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.1"
   }
 }
