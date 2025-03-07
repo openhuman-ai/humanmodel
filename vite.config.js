@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
-  root: 'src',
+  root: '',
   publicDir: 'public',
   base: '/',
   server: {
@@ -16,9 +16,9 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/index.html'),
-        human: resolve(__dirname, 'src/human/index.html'),
-        normalmap: resolve(__dirname, 'src/normalmap/index.html'),
+        main: resolve(__dirname, './index.html'),
+        human: resolve(__dirname, './human/index.html'),
+        normalmap: resolve(__dirname, './normalmap/index.html'),
       },
     },
     assetsDir: 'assets',
