@@ -16,11 +16,11 @@ import { GammaCorrectionShader } from "three/addons/shaders/GammaCorrectionShade
 // Create loading manager
 const loadingManager = new THREE.LoadingManager()
 loadingManager.onProgress = (url, loaded, total) => {
-//   console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
+  //   console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
 }
 
-const MODEL_PATH = new URL("/models/Thanh.glb", import.meta.url).href
-console.log("sdfds")
+// const MODEL_PATH = new URL("/models/Thanh.glb", import.meta.url).href
+const MODEL_PATH = new URL("/models/LeePerrySmith/LeePerrySmith.glb", import.meta.url).href
 
 class App {
   container
@@ -31,6 +31,17 @@ class App {
   controls
   clock
   model
+  composer
+  effectFXAA
+  stats
+  loader
+
+  mouseX = 0
+  mouseY = 0
+  targetX = 0
+  targetY = 0
+  windowHalfX = window.innerWidth / 2
+  windowHalfY = window.innerHeight / 2
 
   constructor() {
     const container = document.querySelector("#scene-container")
@@ -44,9 +55,12 @@ class App {
     this.createRenderer()
     this.createControls()
     this.createLight()
+    this.setupPostProcessing()
+    this.createStats()
     this.loadModel()
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false)
+    document.addEventListener("mousemove", this.onDocumentMouseMove.bind(this))
 
     this.renderer.setAnimationLoop(() => {
       this.render()
@@ -54,13 +68,8 @@ class App {
   }
 
   createCamera() {
-    this.camera = new THREE.PerspectiveCamera(
-      35, // FOV
-      window.innerWidth / window.innerHeight, // aspect
-      0.1, // near
-      1000 // far
-    )
-    this.camera.position.set(0, 1, 5)
+    this.camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 10000)
+    this.camera.position.set(0, 0, 20)
   }
 
   createRenderer() {
@@ -71,7 +80,7 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
-    this.renderer.physicallyCorrectLights = true
+    this.renderer.autoClear = false
     this.container.appendChild(this.renderer.domElement)
   }
 
@@ -83,12 +92,75 @@ class App {
   }
 
   createLight() {
-    const light = new THREE.DirectionalLight("white", 8)
-    light.position.set(10, 10, 10)
-    this.scene.add(light)
-
-    const ambientLight = new THREE.AmbientLight("white", 2)
+    const ambientLight = new THREE.AmbientLight(0x444444)
     this.scene.add(ambientLight)
+
+    const pointLight = new THREE.PointLight(0xffffff, 2, 1000)
+    pointLight.position.set(0, 0, 600)
+    this.scene.add(pointLight)
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff)
+    directionalLight.position.set(1, -0.5, -1)
+    this.scene.add(directionalLight)
+
+    const textureLoader = new THREE.TextureLoader()
+
+    const diffuseMap = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
+    diffuseMap.colorSpace = THREE.SRGBColorSpace
+
+    const specularMap = textureLoader.load("/models/LeePerrySmith/Map-SPEC.jpg")
+    specularMap.colorSpace = THREE.SRGBColorSpace
+
+    const normalMap = textureLoader.load("/models/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg")
+
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xdddddd,
+      specular: 0x222222,
+      shininess: 35,
+      map: diffuseMap,
+      specularMap: specularMap,
+      normalMap: normalMap,
+      normalScale: new THREE.Vector2(0.8, 0.8),
+    })
+
+    // this.loader = new GLTFLoader()
+    // this.loader.load("/models/LeePerrySmith/LeePerrySmith.glb", function (gltf) {
+    //   createScene(gltf.scene.children[0].geometry, 100, material)
+    // })
+
+    // renderer = new THREE.WebGLRenderer()
+    // renderer.setSize(window.innerWidth, window.innerHeight)
+    // container.appendChild(renderer.domElement)
+  }
+
+  setupPostProcessing() {
+    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      type: THREE.HalfFloatType,
+    })
+
+    this.composer = new EffectComposer(this.renderer, renderTarget)
+
+    const renderModel = new RenderPass(this.scene, this.camera)
+    const effectBleach = new ShaderPass(BleachBypassShader)
+    const effectColor = new ShaderPass(ColorCorrectionShader)
+    this.effectFXAA = new ShaderPass(FXAAShader)
+    const gammaCorrection = new ShaderPass(GammaCorrectionShader)
+
+    this.effectFXAA.uniforms["resolution"].value.set(1 / window.innerWidth, 1 / window.innerHeight)
+    effectBleach.uniforms["opacity"].value = 0.2
+    effectColor.uniforms["powRGB"].value.set(1.4, 1.45, 1.45)
+    effectColor.uniforms["mulRGB"].value.set(1.1, 1.1, 1.1)
+
+    this.composer.addPass(renderModel)
+    this.composer.addPass(this.effectFXAA)
+    this.composer.addPass(effectBleach)
+    this.composer.addPass(effectColor)
+    this.composer.addPass(gammaCorrection)
+  }
+
+  createStats() {
+    this.stats = new Stats()
+    this.container.appendChild(this.stats.dom)
   }
 
   loadModel() {
@@ -100,10 +172,13 @@ class App {
     loader.load(MODEL_PATH, (gltf) => {
       this.model = gltf.scene
 
+      const geometry = this.model.geometry
+      const material = this.model.material
+
       // Center the model
       const box = new THREE.Box3().setFromObject(this.model)
       const center = box.getCenter(new THREE.Vector3())
-      this.model.position.sub(center) // Simpler centering
+      this.model.position.sub(center)
 
       // Handle animations
       if (gltf.animations?.length) {
@@ -113,14 +188,33 @@ class App {
         })
       }
 
+      // mesh = new THREE.Mesh(geometry, material)
+
+      // mesh.position.y = -50
+      // mesh.scale.x = mesh.scale.y = mesh.scale.z = scale
+
       this.scene.add(this.model)
     })
   }
 
   onWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight
+    const width = window.innerWidth
+    const height = window.innerHeight
+
+    this.camera.aspect = width / height
     this.camera.updateProjectionMatrix()
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
+
+    this.renderer.setSize(width, height)
+    this.composer.setSize(width, height)
+
+    if (this.effectFXAA) {
+      this.effectFXAA.uniforms["resolution"].value.set(1 / width, 1 / height)
+    }
+  }
+
+  onDocumentMouseMove(event) {
+    this.mouseX = event.clientX - this.windowHalfX
+    this.mouseY = event.clientY - this.windowHalfY
   }
 
   render() {
@@ -134,7 +228,18 @@ class App {
       this.controls.update()
     }
 
-    this.renderer.render(this.scene, this.camera)
+    if (this.model) {
+      this.targetX = this.mouseX * 0.001
+      this.targetY = this.mouseY * 0.001
+      this.model.rotation.y += 0.05 * (this.targetX - this.model.rotation.y)
+      this.model.rotation.x += 0.05 * (this.targetY - this.model.rotation.x)
+    }
+
+    this.composer.render()
+
+    if (this.stats) {
+      this.stats.update()
+    }
   }
 }
 
