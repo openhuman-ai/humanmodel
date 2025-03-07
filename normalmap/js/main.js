@@ -26,8 +26,8 @@ loadingManager.onProgress = (url, loaded, total) => {
   //   console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
 }
 
-// const MODEL_PATH = new URL("/models/Thanh.glb", import.meta.url).href
-const MODEL_PATH = new URL("/models/LeePerrySmith/LeePerrySmith.glb", import.meta.url).href
+const MODEL_PATH = "/models/LeePerrySmith/LeePerrySmith.glb"
+const TEXTURE_BASE_PATH = "/models/LeePerrySmith"
 
 class App {
   container
@@ -216,21 +216,21 @@ class App {
   createMaterial() {
     const textureLoader = new THREE.TextureLoader()
 
-    const colorTexture = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
+    const colorTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-COL.jpg`)
     colorTexture.colorSpace = THREE.SRGBColorSpace
 
-    const roughnessTexture = textureLoader.load("/models/LeePerrySmith/Map-ROUGH.jpg")
+    const roughnessTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-ROUGH.jpg`)
     roughnessTexture.colorSpace = THREE.SRGBColorSpace
 
-    const metalnessTexture = textureLoader.load("/models/LeePerrySmith/Map-METAL.jpg")
+    const metalnessTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-METAL.jpg`)
     metalnessTexture.colorSpace = THREE.SRGBColorSpace
-    const diffuseMap = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
+    const diffuseMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-COL.jpg`)
     diffuseMap.colorSpace = THREE.SRGBColorSpace
 
-    const specularMap = textureLoader.load("/models/LeePerrySmith/Map-SPEC.jpg")
+    const specularMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-SPEC.jpg`)
     specularMap.colorSpace = THREE.SRGBColorSpace
 
-    const normalMap = textureLoader.load("/models/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg")
+    const normalMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Infinite-Level_02_Tangent_SmoothUV.jpg`)
 
     this.material = new THREE.MeshPhongMaterial({
       color: 0xdddddd,
