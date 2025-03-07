@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Human Model</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .home-link, .ready-player-btn {
+            position: fixed;
+            top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 1000;
+        }
+        .home-link {
+            left: 20px;
+        }
+        .ready-player-btn {
+            left: 160px;
+        }
+        .home-link:hover, .ready-player-btn:hover {
+            background-color: #0056b3;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="home-link">Back to Home</a>
+    <button class="ready-player-btn">Ready Player</button>
+    <div id="scene-container"></div>
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html> 

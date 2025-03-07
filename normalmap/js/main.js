@@ -25,9 +25,14 @@ const loadingManager = new THREE.LoadingManager()
 loadingManager.onProgress = (url, loaded, total) => {
   //   console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
 }
+const MODEL_PATH = new URL("/models/LeePerrySmith/LeePerrySmith.glb", import.meta.url).href
 
-const MODEL_PATH = "/models/LeePerrySmith/LeePerrySmith.glb"
-const TEXTURE_BASE_PATH = "/models/LeePerrySmith"
+// Replace TEXTURE_BASE_PATH with individual paths
+const COLOR_MAP_PATH = new URL("/models/LeePerrySmith/Map-COL.jpg", import.meta.url).href
+const ROUGH_MAP_PATH = new URL("/models/LeePerrySmith/Map-ROUGH.jpg", import.meta.url).href
+const METAL_MAP_PATH = new URL("/models/LeePerrySmith/Map-METAL.jpg", import.meta.url).href
+const SPEC_MAP_PATH = new URL("/models/LeePerrySmith/Map-SPEC.jpg", import.meta.url).href
+const NORMAL_MAP_PATH = new URL("/models/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg", import.meta.url).href
 
 class App {
   container
@@ -216,21 +221,22 @@ class App {
   createMaterial() {
     const textureLoader = new THREE.TextureLoader()
 
-    const colorTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-COL.jpg`)
+    const colorTexture = textureLoader.load(COLOR_MAP_PATH)
     colorTexture.colorSpace = THREE.SRGBColorSpace
 
-    const roughnessTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-ROUGH.jpg`)
+    const roughnessTexture = textureLoader.load(ROUGH_MAP_PATH)
     roughnessTexture.colorSpace = THREE.SRGBColorSpace
 
-    const metalnessTexture = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-METAL.jpg`)
+    const metalnessTexture = textureLoader.load(METAL_MAP_PATH)
     metalnessTexture.colorSpace = THREE.SRGBColorSpace
-    const diffuseMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-COL.jpg`)
+
+    const diffuseMap = textureLoader.load(COLOR_MAP_PATH)
     diffuseMap.colorSpace = THREE.SRGBColorSpace
 
-    const specularMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Map-SPEC.jpg`)
+    const specularMap = textureLoader.load(SPEC_MAP_PATH)
     specularMap.colorSpace = THREE.SRGBColorSpace
 
-    const normalMap = textureLoader.load(`${TEXTURE_BASE_PATH}/Infinite-Level_02_Tangent_SmoothUV.jpg`)
+    const normalMap = textureLoader.load(NORMAL_MAP_PATH)
 
     this.material = new THREE.MeshPhongMaterial({
       color: 0xdddddd,
