@@ -16,9 +16,9 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, './index.html'),
-        human: resolve(__dirname, './human/index.html'),
-        normalmap: resolve(__dirname, './normalmap/index.html'),
+        main: resolve(__dirname, 'index.html'),
+        human: resolve(__dirname, 'human/index.html'),
+        normalmap: resolve(__dirname, 'normalmap/index.html'),
       },
     },
     assetsDir: 'assets',

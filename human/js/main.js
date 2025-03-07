@@ -9,7 +9,7 @@ loadingManager.onProgress = (url, loaded, total) => {
     console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`);
 };
 
-const MODEL_PATH = new URL('../../../public/Thanh.glb', import.meta.url).href;
+const MODEL_PATH = new URL('/models/Thanh.glb', import.meta.url).href;
 
 class App {
     container;
