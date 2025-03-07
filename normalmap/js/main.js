@@ -420,6 +420,7 @@ class App {
     // point2Folder.add(this.lights.point2.position, 'y', -10, 10).name('Position Y')
     // point2Folder.add(this.lights.point2.position, 'z', -10, 10).name('Position Z')
     // point2Folder.add(this.lights.point2, 'distance', 0, 2000).name('Distance')
+    this.gui.close()
   }
 }
 

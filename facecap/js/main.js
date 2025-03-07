@@ -45,13 +45,13 @@ class App {
     })
     const pmremGenerator = new THREE.PMREMGenerator(this.renderer)
     this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture
-
+    
     this.createCamera()
+    this.setupGUI()
     this.createRenderer()
     this.createControls()
     this.createLight()
     this.loadModel()
-    this.setupGUI()
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false)
 
@@ -130,20 +130,19 @@ class App {
       //     }
       //   })
 
-        // // Handle animations
-        // if (gltf.animations?.length) {
-        //   this.mixer = new THREE.AnimationMixer(this.model)
-        //   this.animations = gltf.animations
-        //   this.animations.forEach((clip) => {
-        //     this.mixer.clipAction(clip).play()
-        //   })
-        // }
-      this.gui = new GUI()
-      this.gui.close()
+      // // Handle animations
+      // if (gltf.animations?.length) {
+      //   this.mixer = new THREE.AnimationMixer(this.model)
+      //   this.animations = gltf.animations
+      //   this.animations.forEach((clip) => {
+      //     this.mixer.clipAction(clip).play()
+      //   })
+      // }
 
       for (const [key, value] of Object.entries(head.morphTargetDictionary)) {
-        this.gui.add(influences, value, 0, 1, 0.01).name(key.replace("blendShape1.", "")).listen()
+        this.morphTargetFolder.add(influences, value, 0, 1, 0.01).name(key.replace("blendShape1.", "")).listen()
       }
+    //   this.gui.close()
       this.scene.add(mesh)
 
       //   this.scene.add(this.model)
@@ -163,7 +162,7 @@ class App {
     cameraFolder.add(this.camera.position, "x", -5, 5, 0.1).name("Position X")
     cameraFolder.add(this.camera.position, "y", -5, 5, 0.1).name("Position Y")
     cameraFolder.add(this.camera.position, "z", -5, 5, 0.1).name("Position Z")
-    cameraFolder.open()
+    cameraFolder.close()
 
     this.morphTargetFolder = this.gui.addFolder("Morph Targets")
     this.morphTargetFolder.close()
