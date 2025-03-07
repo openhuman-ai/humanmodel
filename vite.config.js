@@ -18,6 +18,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.html'),
         human: resolve(__dirname, 'src/human/index.html'),
+        normalmap: resolve(__dirname, 'src/normalmap/index.html'),
       },
     },
     assetsDir: 'assets',

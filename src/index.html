@@ -23,7 +23,13 @@
         }
         h1 {
             color: #333;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .btn {
             display: inline-block;
@@ -43,7 +49,10 @@
 <body>
     <div class="container">
         <h1>Welcome to 3D Human Model Viewer</h1>
-        <a href="/human/" class="btn">View 3D Model</a>
+        <div class="buttons">
+            <a href="/human/" class="btn">View 3D Model</a>
+            <a href="/normalmap/" class="btn">Normal Map</a>
+        </div>
     </div>
 </body>
 

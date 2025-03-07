@@ -4,23 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Human Model</title>
+    <title>Normal map pages</title>
     <link rel="icon" type="image/x-icon" href="/OpenHuman.ico">
     <link rel="stylesheet" href="./css/style.css">
     <style>
-        .home-link {
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .nav {
             position: fixed;
             top: 20px;
             left: 20px;
+            z-index: 1000;
+        }
+        .nav-btn {
+            display: inline-block;
             padding: 10px 20px;
             background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 4px;
-            z-index: 1000;
+            margin-right: 10px;
         }
-        .home-link:hover {
+        .nav-btn:hover {
             background-color: #0056b3;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 60px auto 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
