@@ -70,7 +70,7 @@ class App {
 
   createCamera() {
     this.camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 10000)
-    this.camera.position.set(0, 0, 1200)
+    this.camera.position.set(0, 0, 1000)
     // this.camera.position.set(0, 0, 20)
   }
 
@@ -94,16 +94,33 @@ class App {
   }
 
   createLight() {
-    const ambientLight = new THREE.AmbientLight(0x444444)
+    // Ambient light for overall scene illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
     this.scene.add(ambientLight)
 
-    const pointLight = new THREE.PointLight(0xffffff, 2, 1000)
-    pointLight.position.set(0, 0, 600)
-    this.scene.add(pointLight)
+    // Main directional light (like sun)
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1)
+    mainLight.position.set(0, 5, 10)
+    this.scene.add(mainLight)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff)
-    directionalLight.position.set(1, -0.5, -1)
-    this.scene.add(directionalLight)
+    // Fill light from the front
+    const frontLight = new THREE.DirectionalLight(0xffffff, 0.7)
+    frontLight.position.set(0, 0, 1)
+    this.scene.add(frontLight)
+
+    // Back light for rim lighting
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.5)
+    backLight.position.set(0, 0, -5)
+    this.scene.add(backLight)
+
+    // Add point lights for additional detail
+    const pointLight1 = new THREE.PointLight(0xffffff, 1, 1000)
+    pointLight1.position.set(2, 2, 2)
+    this.scene.add(pointLight1)
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 1, 1000)
+    pointLight2.position.set(-2, 2, -2)
+    this.scene.add(pointLight2)
 
     // this.loader = new GLTFLoader()
     // this.loader.load("/models/LeePerrySmith/LeePerrySmith.glb", function (gltf) {
@@ -209,9 +226,9 @@ class App {
 
       const mesh = new THREE.Mesh(geometry, this.material)
       // mesh = new THREE.Mesh(geometry, material)
-      const scale = 100
+      const scale = 50
 
-      mesh.position.y = -50
+      mesh.position.y = -20
       mesh.scale.x = mesh.scale.y = mesh.scale.z = scale
 
       // this.scene.add(this.model)
