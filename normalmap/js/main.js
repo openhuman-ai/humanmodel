@@ -30,11 +30,11 @@ class App {
   mixer
   controls
   clock
+  material
   model
   composer
   effectFXAA
   stats
-  loader
 
   mouseX = 0
   mouseY = 0
@@ -57,6 +57,7 @@ class App {
     this.createLight()
     this.setupPostProcessing()
     this.createStats()
+    this.createMaterial()
     this.loadModel()
 
     window.addEventListener("resize", this.onWindowResize.bind(this), false)
@@ -69,7 +70,8 @@ class App {
 
   createCamera() {
     this.camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 10000)
-    this.camera.position.set(0, 0, 20)
+    this.camera.position.set(0, 0, 1200)
+    // this.camera.position.set(0, 0, 20)
   }
 
   createRenderer() {
@@ -103,26 +105,6 @@ class App {
     directionalLight.position.set(1, -0.5, -1)
     this.scene.add(directionalLight)
 
-    const textureLoader = new THREE.TextureLoader()
-
-    const diffuseMap = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
-    diffuseMap.colorSpace = THREE.SRGBColorSpace
-
-    const specularMap = textureLoader.load("/models/LeePerrySmith/Map-SPEC.jpg")
-    specularMap.colorSpace = THREE.SRGBColorSpace
-
-    const normalMap = textureLoader.load("/models/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg")
-
-    const material = new THREE.MeshPhongMaterial({
-      color: 0xdddddd,
-      specular: 0x222222,
-      shininess: 35,
-      map: diffuseMap,
-      specularMap: specularMap,
-      normalMap: normalMap,
-      normalScale: new THREE.Vector2(0.8, 0.8),
-    })
-
     // this.loader = new GLTFLoader()
     // this.loader.load("/models/LeePerrySmith/LeePerrySmith.glb", function (gltf) {
     //   createScene(gltf.scene.children[0].geometry, 100, material)
@@ -134,8 +116,12 @@ class App {
   }
 
   setupPostProcessing() {
+    // const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+    //   type: THREE.HalfFloatType,
+    // })
     const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: THREE.HalfFloatType,
+      depthTexture: new THREE.DepthTexture(window.innerWidth, window.innerHeight),
     })
 
     this.composer = new EffectComposer(this.renderer, renderTarget)
@@ -163,6 +149,36 @@ class App {
     this.container.appendChild(this.stats.dom)
   }
 
+  createMaterial() {
+    const textureLoader = new THREE.TextureLoader()
+
+    const colorTexture = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
+    colorTexture.colorSpace = THREE.SRGBColorSpace
+
+    const roughnessTexture = textureLoader.load("/models/LeePerrySmith/Map-ROUGH.jpg")
+    roughnessTexture.colorSpace = THREE.SRGBColorSpace
+
+    const metalnessTexture = textureLoader.load("/models/LeePerrySmith/Map-METAL.jpg")
+    metalnessTexture.colorSpace = THREE.SRGBColorSpace
+    const diffuseMap = textureLoader.load("/models/LeePerrySmith/Map-COL.jpg")
+    diffuseMap.colorSpace = THREE.SRGBColorSpace
+
+    const specularMap = textureLoader.load("/models/LeePerrySmith/Map-SPEC.jpg")
+    specularMap.colorSpace = THREE.SRGBColorSpace
+
+    const normalMap = textureLoader.load("/models/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg")
+
+    this.material = new THREE.MeshPhongMaterial({
+      color: 0xdddddd,
+      specular: 0x222222,
+      shininess: 35,
+      map: diffuseMap,
+      specularMap: specularMap,
+      normalMap: normalMap,
+      normalScale: new THREE.Vector2(0.8, 0.8),
+    })
+  }
+
   loadModel() {
     const loader = new GLTFLoader(loadingManager)
     const dracoLoader = new DRACOLoader(loadingManager)
@@ -172,28 +188,34 @@ class App {
     loader.load(MODEL_PATH, (gltf) => {
       this.model = gltf.scene
 
-      const geometry = this.model.geometry
-      const material = this.model.material
+      const firstChild = gltf.scene.children[0]
+      const geometry = firstChild instanceof THREE.Mesh ? firstChild.geometry : null
 
       // Center the model
       const box = new THREE.Box3().setFromObject(this.model)
       const center = box.getCenter(new THREE.Vector3())
       this.model.position.sub(center)
 
-      // Handle animations
-      if (gltf.animations?.length) {
-        this.mixer = new THREE.AnimationMixer(this.model)
-        gltf.animations.forEach((clip) => {
-          this.mixer.clipAction(clip).play()
-        })
-      }
+      // // Handle animations
+      // if (gltf.animations?.length) {
+      //   this.mixer = new THREE.AnimationMixer(this.model)
+      //   gltf.animations.forEach((clip) => {
+      //     this.mixer.clipAction(clip).play()
+      //   })
+      // }
+      // console.log("this.material", this.material)
 
+      console.log("geometry", geometry)
+
+      const mesh = new THREE.Mesh(geometry, this.material)
       // mesh = new THREE.Mesh(geometry, material)
+      const scale = 100
 
-      // mesh.position.y = -50
-      // mesh.scale.x = mesh.scale.y = mesh.scale.z = scale
+      mesh.position.y = -50
+      mesh.scale.x = mesh.scale.y = mesh.scale.z = scale
 
-      this.scene.add(this.model)
+      // this.scene.add(this.model)
+      this.scene.add(mesh)
     })
   }
 
