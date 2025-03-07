@@ -144,7 +144,7 @@ class App {
     this.scene.add(this.lights.ambient)
 
     // Main directional light (like sun)
-    this.lights.main = new THREE.DirectionalLight(0xffffff, 1)
+    this.lights.main = new THREE.DirectionalLight(0xffffff, 2)
     this.lights.main.position.set(0, 5, 10)
     this.scene.add(this.lights.main)
 
@@ -350,6 +350,7 @@ class App {
 
     // Add helper visibility controls
     const helperFolder = this.gui.addFolder('Helpers')
+    helperFolder.close() // Close by default
     helperFolder.add({ showAxes: true }, 'showAxes')
       .onChange((visible) => {
         if (this.helpers.axes) this.helpers.axes.visible = visible
@@ -369,11 +370,13 @@ class App {
 
     // Ambient Light controls
     const ambientFolder = this.gui.addFolder('Ambient Light')
+    ambientFolder.close() // Close by default
     ambientFolder.add(this.lights.ambient, 'intensity', 0, 2).name('Intensity')
     ambientFolder.addColor(this.lights.ambient, 'color').name('Color')
 
     // Main Light controls
     const mainFolder = this.gui.addFolder('Main Light')
+    mainFolder.close() // Close by default
     mainFolder.add(this.lights.main, 'intensity', 0, 2).name('Intensity')
     mainFolder.addColor(this.lights.main, 'color').name('Color')
     mainFolder.add(this.lights.main.position, 'x', -10, 10).name('Position X')
@@ -382,6 +385,7 @@ class App {
 
     // Front Light controls
     const frontFolder = this.gui.addFolder('Front Light')
+    frontFolder.close() // Close by default
     frontFolder.add(this.lights.front, 'intensity', 0, 2).name('Intensity')
     frontFolder.addColor(this.lights.front, 'color').name('Color')
     frontFolder.add(this.lights.front.position, 'x', -10, 10).name('Position X')
@@ -390,29 +394,32 @@ class App {
 
     // Back Light controls
     const backFolder = this.gui.addFolder('Back Light')
+    backFolder.close() // Close by default
     backFolder.add(this.lights.back, 'intensity', 0, 2).name('Intensity')
     backFolder.addColor(this.lights.back, 'color').name('Color')
     backFolder.add(this.lights.back.position, 'x', -10, 10).name('Position X')
     backFolder.add(this.lights.back.position, 'y', -10, 10).name('Position Y')
     backFolder.add(this.lights.back.position, 'z', -10, 10).name('Position Z')
 
-    // Point Light 1 controls
-    const point1Folder = this.gui.addFolder('Point Light 1')
-    point1Folder.add(this.lights.point1, 'intensity', 0, 2).name('Intensity')
-    point1Folder.addColor(this.lights.point1, 'color').name('Color')
-    point1Folder.add(this.lights.point1.position, 'x', -10, 10).name('Position X')
-    point1Folder.add(this.lights.point1.position, 'y', -10, 10).name('Position Y')
-    point1Folder.add(this.lights.point1.position, 'z', -10, 10).name('Position Z')
-    point1Folder.add(this.lights.point1, 'distance', 0, 2000).name('Distance')
+    // // Point Light 1 controls
+    // const point1Folder = this.gui.addFolder('Point Light 1')
+    // point1Folder.close() // Close by default
+    // point1Folder.add(this.lights.point1, 'intensity', 0, 2).name('Intensity')
+    // point1Folder.addColor(this.lights.point1, 'color').name('Color')
+    // point1Folder.add(this.lights.point1.position, 'x', -10, 10).name('Position X')
+    // point1Folder.add(this.lights.point1.position, 'y', -10, 10).name('Position Y')
+    // point1Folder.add(this.lights.point1.position, 'z', -10, 10).name('Position Z')
+    // point1Folder.add(this.lights.point1, 'distance', 0, 2000).name('Distance')
 
-    // Point Light 2 controls
-    const point2Folder = this.gui.addFolder('Point Light 2')
-    point2Folder.add(this.lights.point2, 'intensity', 0, 2).name('Intensity')
-    point2Folder.addColor(this.lights.point2, 'color').name('Color')
-    point2Folder.add(this.lights.point2.position, 'x', -10, 10).name('Position X')
-    point2Folder.add(this.lights.point2.position, 'y', -10, 10).name('Position Y')
-    point2Folder.add(this.lights.point2.position, 'z', -10, 10).name('Position Z')
-    point2Folder.add(this.lights.point2, 'distance', 0, 2000).name('Distance')
+    // // Point Light 2 controls
+    // const point2Folder = this.gui.addFolder('Point Light 2')
+    // point2Folder.close() // Close by default
+    // point2Folder.add(this.lights.point2, 'intensity', 0, 2).name('Intensity')
+    // point2Folder.addColor(this.lights.point2, 'color').name('Color')
+    // point2Folder.add(this.lights.point2.position, 'x', -10, 10).name('Position X')
+    // point2Folder.add(this.lights.point2.position, 'y', -10, 10).name('Position Y')
+    // point2Folder.add(this.lights.point2.position, 'z', -10, 10).name('Position Z')
+    // point2Folder.add(this.lights.point2, 'distance', 0, 2000).name('Distance')
   }
 }
 
