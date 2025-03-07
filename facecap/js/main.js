@@ -62,7 +62,7 @@ class App {
 
   createCamera() {
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20)
-    this.camera.position.set(-1.8, 0.8, 3)
+    this.camera.position.set(-1, 0.8, 5)
   }
 
   createRenderer() {
@@ -74,6 +74,14 @@ class App {
 
   createControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.minDistance = 2.5
+    this.controls.maxDistance = 5
+    this.controls.minAzimuthAngle = -Math.PI / 2
+    this.controls.maxAzimuthAngle = Math.PI / 2
+    this.controls.maxPolarAngle = Math.PI / 1.8
+    this.controls.target.set(0, 0.15, -0.2)
+
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.05
     this.controls.screenSpacePanning = true
@@ -122,16 +130,16 @@ class App {
       //     }
       //   })
 
-      //   // Handle animations
-      //   if (gltf.animations?.length) {
-      //     this.mixer = new THREE.AnimationMixer(this.model)
-      //     this.animations = gltf.animations
-      //     this.animations.forEach((clip) => {
-      //       this.mixer.clipAction(clip).play()
-      //     })
-      //   }
+        // // Handle animations
+        // if (gltf.animations?.length) {
+        //   this.mixer = new THREE.AnimationMixer(this.model)
+        //   this.animations = gltf.animations
+        //   this.animations.forEach((clip) => {
+        //     this.mixer.clipAction(clip).play()
+        //   })
+        // }
       this.gui = new GUI()
-      //   this.gui.close()
+      this.gui.close()
 
       for (const [key, value] of Object.entries(head.morphTargetDictionary)) {
         this.gui.add(influences, value, 0, 1, 0.01).name(key.replace("blendShape1.", "")).listen()
@@ -149,6 +157,14 @@ class App {
 
   setupGUI() {
     this.gui = new GUI()
+
+    // Add camera controls
+    const cameraFolder = this.gui.addFolder("Camera")
+    cameraFolder.add(this.camera.position, "x", -5, 5, 0.1).name("Position X")
+    cameraFolder.add(this.camera.position, "y", -5, 5, 0.1).name("Position Y")
+    cameraFolder.add(this.camera.position, "z", -5, 5, 0.1).name("Position Z")
+    cameraFolder.open()
+
     this.morphTargetFolder = this.gui.addFolder("Morph Targets")
     this.morphTargetFolder.close()
   }
