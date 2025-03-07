@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from "three"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import Stats from "three/addons/libs/stats.module.js"
 
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js"
@@ -11,128 +11,183 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js"
 import { GUI } from "three/addons/libs/lil-gui.module.min.js"
 
 // Create loading manager
-const loadingManager = new THREE.LoadingManager();
+const loadingManager = new THREE.LoadingManager()
 loadingManager.onProgress = (url, loaded, total) => {
-    console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`);
-};
+  console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
+}
 
-const MODEL_PATH = new URL('/models/facecap.glb', import.meta.url).href;
+const MODEL_PATH = new URL("/models/facecap.glb", import.meta.url).href
 
 class App {
-    container;
-    renderer;
-    camera;
-    scene;
-    mixer;
-    controls;
-    clock;
-    model;
+  container
+  renderer
+  camera
+  scene
+  mixer
+  controls
+  clock
+  model
+  meshWithMorphTargets
+  gui
+  morphTargetFolder
 
-    constructor() {
-        const container = document.querySelector('#scene-container');
-        if (!container) throw new Error('Could not find #scene-container');
-        this.container = container;
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color('white');
-        this.clock = new THREE.Clock();
-        
-        this.createCamera();
-        this.createRenderer();
-        this.createControls();
-        this.createLight();
-        this.loadModel();
-        
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
-        
-        this.renderer.setAnimationLoop(() => {
-            this.render();
-        });
+  constructor() {
+    const container = document.querySelector("#scene-container")
+    if (!container) throw new Error("Could not find #scene-container")
+    this.container = container
+    this.scene = new THREE.Scene()
+    this.scene.background = new THREE.Color("white")
+    this.clock = new THREE.Clock()
+
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+    })
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer)
+    this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture
+
+    this.createCamera()
+    this.createRenderer()
+    this.createControls()
+    this.createLight()
+    this.loadModel()
+    this.setupGUI()
+
+    window.addEventListener("resize", this.onWindowResize.bind(this), false)
+
+    this.renderer.setAnimationLoop(() => {
+      this.render()
+    })
+  }
+
+  createCamera() {
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20)
+    this.camera.position.set(-1.8, 0.8, 3)
+  }
+
+  createRenderer() {
+    this.renderer.setPixelRatio(window.devicePixelRatio)
+    this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping
+    this.container.appendChild(this.renderer.domElement)
+  }
+
+  createControls() {
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.dampingFactor = 0.05
+    this.controls.screenSpacePanning = true
+  }
+
+  createLight() {
+    const light = new THREE.DirectionalLight("white", 8)
+    light.position.set(10, 10, 10)
+    this.scene.add(light)
+
+    const ambientLight = new THREE.AmbientLight("white", 2)
+    this.scene.add(ambientLight)
+  }
+
+  async loadModel() {
+    // const ktx2Loader = new KTX2Loader(loadingManager)
+    //   .setTranscoderPath("three/examples/jsm/libs/basis/")
+    //   .detectSupport(this.renderer)
+    const ktx2Loader = new KTX2Loader(loadingManager).setTranscoderPath("/libs/basis/").detectSupport(this.renderer)
+
+    const dracoLoader = new DRACOLoader(loadingManager)
+    dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/")
+
+    const loader = new GLTFLoader(loadingManager)
+    loader.setDRACOLoader(dracoLoader)
+    loader.setKTX2Loader(ktx2Loader)
+    loader.setMeshoptDecoder(MeshoptDecoder)
+
+    loader.load(MODEL_PATH, (gltf) => {
+      //   this.model = gltf.scene
+      const mesh = gltf.scene.children[0]
+      this.mixer = new THREE.AnimationMixer(mesh)
+      this.mixer.clipAction(gltf.animations[0]).play()
+      const head = mesh.getObjectByName("mesh_2")
+      const influences = head.morphTargetInfluences
+
+      //   // Center the model
+      //   const box = new THREE.Box3().setFromObject(this.model)
+      //   const center = box.getCenter(new THREE.Vector3())
+      //   this.model.position.sub(center)
+
+      //   // Setup morph targets
+      //   this.model.traverse((node) => {
+      //     if (node.isMesh && node.morphTargetDictionary) {
+      //       this.meshWithMorphTargets = node
+      //     }
+      //   })
+
+      //   // Handle animations
+      //   if (gltf.animations?.length) {
+      //     this.mixer = new THREE.AnimationMixer(this.model)
+      //     this.animations = gltf.animations
+      //     this.animations.forEach((clip) => {
+      //       this.mixer.clipAction(clip).play()
+      //     })
+      //   }
+      this.gui = new GUI()
+      //   this.gui.close()
+
+      for (const [key, value] of Object.entries(head.morphTargetDictionary)) {
+        this.gui.add(influences, value, 0, 1, 0.01).name(key.replace("blendShape1.", "")).listen()
+      }
+      this.scene.add(mesh)
+
+      //   this.scene.add(this.model)
+
+      // Update GUI after model is loaded
+      if (this.meshWithMorphTargets) {
+        this.updateMorphTargetGUI()
+      }
+    })
+  }
+
+  setupGUI() {
+    this.gui = new GUI()
+    this.morphTargetFolder = this.gui.addFolder("Morph Targets")
+    this.morphTargetFolder.close()
+  }
+
+  updateMorphTargetGUI() {
+    if (!this.meshWithMorphTargets) return
+
+    const morphDict = this.meshWithMorphTargets.morphTargetDictionary
+    const morphTargets = {}
+
+    // Create controls for each morph target
+    for (const [key, index] of Object.entries(morphDict)) {
+      morphTargets[key] = 0
+      this.morphTargetFolder.add(morphTargets, key, 0, 1, 0.01).onChange((value) => {
+        this.meshWithMorphTargets.morphTargetInfluences[index] = value
+      })
     }
-    
-    createCamera() {
-        this.camera = new THREE.PerspectiveCamera(
-            35, // FOV
-            window.innerWidth / window.innerHeight, // aspect
-            0.1, // near
-            1000, // far
-        );
-        this.camera.position.set(0, 1, 5);
-    }
-    
-    createRenderer() {
-        this.renderer = new THREE.WebGLRenderer({ 
-            antialias: true,
-            alpha: true 
-        });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        this.renderer.physicallyCorrectLights = true;
-        this.container.appendChild(this.renderer.domElement);
+  }
+
+  onWindowResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight
+    this.camera.updateProjectionMatrix()
+    this.renderer.setSize(window.innerWidth, window.innerHeight)
+  }
+
+  render() {
+    const delta = this.clock.getDelta()
+
+    if (this.mixer) {
+      this.mixer.update(delta)
     }
 
-    createControls() {
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.screenSpacePanning = true;
-    }
-    
-    createLight() {
-        const light = new THREE.DirectionalLight('white', 8);
-        light.position.set(10, 10, 10);
-        this.scene.add(light);
-        
-        const ambientLight = new THREE.AmbientLight('white', 2);
-        this.scene.add(ambientLight);
-    }
-    
-    loadModel() {
-        const loader = new GLTFLoader(loadingManager);
-        const dracoLoader = new DRACOLoader(loadingManager);
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-        loader.setDRACOLoader(dracoLoader);
-
-        loader.load(MODEL_PATH, (gltf) => {
-            this.model = gltf.scene;
-            
-            // Center the model
-            const box = new THREE.Box3().setFromObject(this.model);
-            const center = box.getCenter(new THREE.Vector3());
-            this.model.position.sub(center); // Simpler centering
-            
-            // Handle animations
-            if (gltf.animations?.length) {
-                this.mixer = new THREE.AnimationMixer(this.model);
-                gltf.animations.forEach(clip => {
-                    this.mixer.clipAction(clip).play();
-                });
-            }
-            
-            this.scene.add(this.model);
-        });
+    if (this.controls) {
+      this.controls.update()
     }
 
-    onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-    
-    render() {
-        const delta = this.clock.getDelta();
-        
-        if (this.mixer) {
-            this.mixer.update(delta);
-        }
-        
-        if (this.controls) {
-            this.controls.update();
-        }
-        
-        this.renderer.render(this.scene, this.camera);
-    }
+    this.renderer.render(this.scene, this.camera)
+  }
 }
 
 // Create a new instance of the App class
-new App(); 
+new App()
