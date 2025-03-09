@@ -27,7 +27,7 @@ loadingManager.onProgress = (url, loaded, total) => {
 const MODEL_PATH = new URL("/models/facecap.glb", import.meta.url).href
 
 class App {
-  container
+  canvas
   renderer
   camera
   scene
@@ -40,9 +40,9 @@ class App {
   morphTargetFolder
 
   constructor() {
-    const container = document.querySelector("#scene-container")
-    if (!container) throw new Error("Could not find #scene-container")
-    this.container = container
+    const canvas = document.querySelector("#scene-container")
+    if (!canvas) throw new Error("Could not find #scene-container")
+    this.canvas = canvas
     this.scene = new Scene()
     this.scene.background = new Color("white")
     this.clock = new Clock()
@@ -77,7 +77,7 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.toneMapping = ACESFilmicToneMapping
-    this.container.appendChild(this.renderer.domElement)
+    this.canvas.appendChild(this.renderer.domElement)
   }
 
   createControls() {
