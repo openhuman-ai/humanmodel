@@ -1,17 +1,25 @@
-import * as THREE from "three"
+import {
+  LoadingManager,
+  Scene,
+  Color,
+  Clock,
+  WebGLRenderer,
+  PMREMGenerator,
+  PerspectiveCamera,
+  ACESFilmicToneMapping,
+  DirectionalLight,
+  AmbientLight,
+  AnimationMixer,
+} from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import Stats from "three/addons/libs/stats.module.js"
-
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js"
 import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js"
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js"
-
 import { GUI } from "three/addons/libs/lil-gui.module.min.js"
 
 // Create loading manager
-const loadingManager = new THREE.LoadingManager()
+const loadingManager = new LoadingManager()
 loadingManager.onProgress = (url, loaded, total) => {
   console.log(`Loading file: ${url}.\nLoaded ${loaded} of ${total} files.`)
 }
@@ -35,17 +43,17 @@ class App {
     const container = document.querySelector("#scene-container")
     if (!container) throw new Error("Could not find #scene-container")
     this.container = container
-    this.scene = new THREE.Scene()
-    this.scene.background = new THREE.Color("white")
-    this.clock = new THREE.Clock()
+    this.scene = new Scene()
+    this.scene.background = new Color("white")
+    this.clock = new Clock()
 
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       antialias: true,
       alpha: true,
     })
-    const pmremGenerator = new THREE.PMREMGenerator(this.renderer)
+    const pmremGenerator = new PMREMGenerator(this.renderer)
     this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture
-    
+
     this.createCamera()
     this.setupGUI()
     this.createRenderer()
@@ -61,14 +69,14 @@ class App {
   }
 
   createCamera() {
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20)
+    this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20)
     this.camera.position.set(-1, 0.8, 5)
   }
 
   createRenderer() {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping
+    this.renderer.toneMapping = ACESFilmicToneMapping
     this.container.appendChild(this.renderer.domElement)
   }
 
@@ -88,11 +96,11 @@ class App {
   }
 
   createLight() {
-    const light = new THREE.DirectionalLight("white", 8)
+    const light = new DirectionalLight("white", 8)
     light.position.set(10, 10, 10)
     this.scene.add(light)
 
-    const ambientLight = new THREE.AmbientLight("white", 2)
+    const ambientLight = new AmbientLight("white", 2)
     this.scene.add(ambientLight)
   }
 
@@ -102,25 +110,21 @@ class App {
     //   .detectSupport(this.renderer)
     const ktx2Loader = new KTX2Loader(loadingManager).setTranscoderPath("/libs/basis/").detectSupport(this.renderer)
 
-    const dracoLoader = new DRACOLoader(loadingManager)
-    dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/")
-
     const loader = new GLTFLoader(loadingManager)
-    loader.setDRACOLoader(dracoLoader)
     loader.setKTX2Loader(ktx2Loader)
     loader.setMeshoptDecoder(MeshoptDecoder)
 
     loader.load(MODEL_PATH, (gltf) => {
       //   this.model = gltf.scene
       const mesh = gltf.scene.children[0]
-      this.mixer = new THREE.AnimationMixer(mesh)
+      this.mixer = new AnimationMixer(mesh)
       this.mixer.clipAction(gltf.animations[0]).play()
       const head = mesh.getObjectByName("mesh_2")
       const influences = head.morphTargetInfluences
 
       //   // Center the model
-      //   const box = new THREE.Box3().setFromObject(this.model)
-      //   const center = box.getCenter(new THREE.Vector3())
+      //   const box = new Box3().setFromObject(this.model)
+      //   const center = box.getCenter(new Vector3())
       //   this.model.position.sub(center)
 
       //   // Setup morph targets
@@ -132,7 +136,7 @@ class App {
 
       // // Handle animations
       // if (gltf.animations?.length) {
-      //   this.mixer = new THREE.AnimationMixer(this.model)
+      //   this.mixer = new AnimationMixer(this.model)
       //   this.animations = gltf.animations
       //   this.animations.forEach((clip) => {
       //     this.mixer.clipAction(clip).play()
@@ -142,7 +146,7 @@ class App {
       for (const [key, value] of Object.entries(head.morphTargetDictionary)) {
         this.morphTargetFolder.add(influences, value, 0, 1, 0.01).name(key.replace("blendShape1.", "")).listen()
       }
-    //   this.gui.close()
+      //   this.gui.close()
       this.scene.add(mesh)
 
       //   this.scene.add(this.model)
