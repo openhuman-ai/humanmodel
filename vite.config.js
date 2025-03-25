@@ -21,6 +21,7 @@ export default defineConfig({
         normalmap: resolve(__dirname, 'normalmap/index.html'),
         readyplayer: resolve(__dirname, 'readyplayer/index.html'),
         facecap: resolve(__dirname, 'facecap/index.html'),
+        morph: resolve(__dirname, 'morph/index.html'),
       },
     },
     assetsDir: 'assets',
